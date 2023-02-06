@@ -3,6 +3,7 @@ from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from db import stores
+from schemas import StoreSchema
 
 
 blpStores = Blueprint("stores", __name__, description="Operations on stores")
@@ -34,8 +35,8 @@ class StoreGetAllStores(MethodView):
     
 @blpStores.route('/store')
 class StoreCreateAnStore(MethodView):
-    def post(self):
-        request_data = request.get_json()
+    @blpStores.arguments(StoreSchema)
+    def post(self, request_data):
         storeName = request_data.get('name', None)
         for store in stores.values():
             if storeName == store['name']:

@@ -3,6 +3,7 @@ from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from db import items, stores
+from schemas import ItemSchema, ItemUpdateSchema
 
 
 blpItems = Blueprint("items", __name__, description="Operations on items")
@@ -16,22 +17,16 @@ class ItemGetPutAndDelete(MethodView):
         except KeyError as e:
             print(f'Keyerror:{e}')
             abort(404, message=f'Item not found')
-
-    def put(self, item_id):
-        request_data = request.get_json()
-        name = request_data.get('name', None)
-        price = request_data.get('price', None)
-        if name or price:
-            try:
+            
+    @blpItems.arguments(ItemUpdateSchema)
+    def put(self, request_data, item_id):
+        try:
                 item = items[item_id]
                 item |= request_data
                 return item
-            except KeyError as e:
+        except KeyError as e:
                 print(f'KeyError:{e}')
                 abort(404, message=f"Item with item_id:{item_id} Not Found")
-        else:
-            abort(
-                400, message=f'Bad Request. Either item\'s price:{price} or item\'s name:{name} or both is missing')
             
     def delete(self, item_id):
         try:
@@ -48,8 +43,8 @@ class ItemGetAllItems(MethodView):
     
 @blpItems.route('/item')
 class ItemPostCreateAStore(MethodView):
-    def post(self):
-        request_data = request.get_json()
+    @blpItems.arguments(ItemSchema)
+    def post(self, request_data):
         item_name = request_data.get('name', None)
         price = request_data.get('price', None)
         store_id = request_data.get('store_id', None)
