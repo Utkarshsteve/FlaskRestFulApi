@@ -11,6 +11,7 @@ blpItems = Blueprint("items", __name__, description="Operations on items")
 
 @blpItems.route('/item/<string:item_id>')
 class ItemGetPutAndDelete(MethodView):
+    @blpItems.response(200, ItemSchema)
     def get(self, item_id):
         try:
             return items.get(item_id)
@@ -19,6 +20,7 @@ class ItemGetPutAndDelete(MethodView):
             abort(404, message=f'Item not found')
             
     @blpItems.arguments(ItemUpdateSchema)
+    @blpItems.response(200, ItemSchema)
     def put(self, request_data, item_id):
         try:
                 item = items[item_id]
@@ -38,12 +40,14 @@ class ItemGetPutAndDelete(MethodView):
             
 @blpItems.route('/items')
 class ItemGetAllItems(MethodView):
+    @blpItems.response(200, ItemSchema(many=True))
     def get(self):
-        return {"items": list(items.values())}
+        return items.values()
     
 @blpItems.route('/item')
 class ItemPostCreateAStore(MethodView):
     @blpItems.arguments(ItemSchema)
+    @blpItems.response(201, ItemSchema)
     def post(self, request_data):
         item_name = request_data.get('name', None)
         price = request_data.get('price', None)
@@ -64,7 +68,7 @@ class ItemPostCreateAStore(MethodView):
             item_id = uuid.uuid4().hex
             item = {**request_data, "id": item_id}
             items[item_id] = item
-            return item, 201
+            return item
         abort(
             400, message=f'Either the item name:{item_name} or price:{price} is not valid or store with id:{store_id} does not exists')
         

@@ -11,6 +11,7 @@ blpStores = Blueprint("stores", __name__, description="Operations on stores")
 
 @blpStores.route('/store/<string:store_id>')
 class StoreGetAndDelete(MethodView):
+    @blpStores.response(200, StoreSchema)
     def get(self, store_id):
         try:
             return stores.get(store_id)
@@ -29,13 +30,15 @@ class StoreGetAndDelete(MethodView):
 
 @blpStores.route('/stores')
 class StoreGetAllStores(MethodView):
+    @blpStores.response(200, StoreSchema(many=True))
     def get(self):
-        return {"stores": list(stores.values())}
+        return stores.values()
     
     
 @blpStores.route('/store')
 class StoreCreateAnStore(MethodView):
     @blpStores.arguments(StoreSchema)
+    @blpStores.response(201, StoreSchema)
     def post(self, request_data):
         storeName = request_data.get('name', None)
         for store in stores.values():
@@ -46,6 +49,6 @@ class StoreCreateAnStore(MethodView):
             store_id = uuid.uuid4().hex
             new_store = {**request_data, "id": store_id}
             stores[store_id] = new_store
-            return new_store, 201
+            return new_store
         abort(
         400, message=f'Not able to create store as storeName:{storeName} is not valid')
