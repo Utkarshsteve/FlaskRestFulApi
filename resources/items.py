@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 blpItems = Blueprint("items", __name__, description="Operations on items")
 
 
-@blpItems.route('/item/<string:item_id>')
+@blpItems.route('/item/<int:item_id>')
 class ItemGetPutAndDelete(MethodView):
     @blpItems.response(200, ItemSchema)
     def get(self, item_id):

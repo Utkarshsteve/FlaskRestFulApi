@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 blpStores = Blueprint("stores", __name__, description="Operations on stores")
 
 
-@blpStores.route('/store/<string:store_id>')
+@blpStores.route('/store/<int:store_id>')
 class StoreGetAndDelete(MethodView):
     @blpStores.response(200, StoreSchema)
     def get(self, store_id):
